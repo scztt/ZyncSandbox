@@ -19,13 +19,9 @@ public class AssetMetadata extends Hashtable<String, String>
 						
 			for(int col = 0; col < resultMD.getColumnCount(); col++)
 			{
-				switch (resultMD.getColumnTypeName(col))
-				{
-					case "string":
-					{
-						md.put(resultMD.getColumnName(col), inResult.getString(col));
-					}
-				}			
+				String columnName = resultMD.getColumnTypeName(col);
+				if (columnName.equals("string"))
+					md.put(resultMD.getColumnName(col), inResult.getString(col));
 			}
 			
 			return md;

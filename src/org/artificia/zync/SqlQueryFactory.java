@@ -9,21 +9,19 @@ public class SqlQueryFactory {
 	public static String AssetRef_CreateTable()
 	{
 		String str = "create table assetref (" 
-				+ "id int,"
+				+ "id INTEGER PRIMARY KEY,"
 				+ "uniqueID string,"
 				+ "path string,"
-				+ "name string"
+				+ "name string,"
+				+ "size int,"
+				+ "lastChanged time"
 				+ ")";
 		return str;	
 	}
 
-	public static String AssetRef_Update(AssetRef inAssetRef)
+	public static String AssetRef_Insert()
 	{		
-		String str = "insert into assetref (uniqueID, path, name) VALUES (" 
-				+ "'" + inAssetRef.uniqueID + "',"
-				+ "'" + inAssetRef.path + "',"
-				+ "'" + inAssetRef.name + "')";
-		return str;
+		return "insert into assetref (uniqueID, path, name, size, lastChanged) VALUES (?, ?, ?, ?, ?)";
 	}
 	
 	///////////////////////////////////////////////////////////////
@@ -31,7 +29,7 @@ public class SqlQueryFactory {
 	public static String Asset_CreateTable()
 	{
 		String str = "create table asset (" 
-				+ "id int,"
+				+ "id INTEGER PRIMARY KEY,"
 				+ "uniqueID string,"
 				+ "lastUpdate date,"
 				+ "metadata string"
@@ -39,12 +37,13 @@ public class SqlQueryFactory {
 		return str;	
 	}
 
-	public static String Asset_Update(Asset inAsset)
+	public static String Asset_Insert(Asset inAsset)
 	{
-		String str = "insert into asset (uniqueID, lastUpdate, metadata) VALUES ("
-				+ "'" + inAsset.uniqueID + "',"
-				+ "'" + inAsset.lastUpdate + "',"
-				+ "'" + inAsset.metadata + "')";
+//		String str = "insert into asset (uniqueID, lastUpdate, metadata) VALUES ("
+//				+ "'" + inAsset.uniqueID + "',"
+//				+ "'" + inAsset.lastUpdate + "',"
+//				+ "'" + inAsset.metadata + "')";
+		String str = "insert into asset (uniqueID, lastUpdate, metadata) VALUES (?, ?, ?)";
 		return str;
 	}
 
@@ -56,13 +55,16 @@ public class SqlQueryFactory {
 	public static AssetRef AssetRef_FromResultSet(ResultSet result) {
 		AssetRef assetRef = null;
 		
-		try {
-			if (result.first())
+		try 
+		{
+			if (true)
 			{
 				assetRef = new AssetRef();
 				assetRef.name = result.getString("name");
 				assetRef.path = result.getString("path");
 				assetRef.uniqueID = result.getString("uniqueID");
+				assetRef.size = result.getInt("size");
+				assetRef.lastChanged = result.getTime("lastChanged");
 			}
 		}
 		catch (Exception e)
@@ -71,5 +73,10 @@ public class SqlQueryFactory {
 		}
 		
 		return assetRef;
+	}
+
+	public static String AssetRef_All()
+	{
+		return "select * from assetref";
 	}
 }

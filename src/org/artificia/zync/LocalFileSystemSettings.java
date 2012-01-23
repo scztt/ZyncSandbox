@@ -4,10 +4,11 @@ import java.lang.String;
 import java.io.*;
 import java.util.Properties;
 
-public class LocalFileSystemSettings {
+public class LocalFileSystemSettings implements FileSystemSettings {
 	// make these private later
 	public String rootPath;
-	public String databasePath;
+	public String libraryDatabasePath;
+	public String localDatabasePath;
 
 	public LocalFileSystemSettings()
 	{
@@ -24,9 +25,14 @@ public class LocalFileSystemSettings {
 		return rootPath;
 	}
 	
-	public String getDatabaseLocation()
+	public String getLibraryDatabasePath()
 	{
-		return databasePath;
+		return libraryDatabasePath;
+	}
+	
+	public String getLocalDatabasePath()
+	{
+		return localDatabasePath;
 	}
 	
 	public Boolean serializeFromFile(String inPath)
@@ -41,16 +47,26 @@ public class LocalFileSystemSettings {
 			return false;
 		}
 		
-		if (newProperties.containsKey("rootPath"))
+		try
 		{
-			this.rootPath = newProperties.getProperty("rootPath");
+			if (newProperties.containsKey("rootPath"))
+			{
+				this.rootPath = new File(newProperties.getProperty("rootPath")).getCanonicalPath();
+			}
+			
+			if (newProperties.containsKey("libraryDatabasePath"))
+			{
+				this.libraryDatabasePath = newProperties.getProperty("libraryDatabasePath");
+			}
+			
+			if (newProperties.containsKey("localDatabasePath"))
+			{
+				this.localDatabasePath = newProperties.getProperty("localDatabasePath");
+			}
 		}
-		
-		if (newProperties.containsKey("databasePath"))
-		{
-			this.databasePath = newProperties.getProperty("databasePath");
-		}
-		
+		catch (Exception e)
+		{ }
+
 		return true;
 	}
 	
@@ -58,7 +74,8 @@ public class LocalFileSystemSettings {
 	{
 		Properties outProps = new Properties();
 		outProps.put("rootPath", this.rootPath);
-		outProps.put("databasePath", databasePath);
+		outProps.put("localDatabasePath", localDatabasePath);
+		outProps.put("libraryDatabasePath", libraryDatabasePath);
 		
 		try {
 			File outFile = new File(inPath);

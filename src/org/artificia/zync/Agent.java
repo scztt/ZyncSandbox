@@ -1,5 +1,6 @@
 package org.artificia.zync;
 
+import java.io.File;
 import java.util.Vector;
 
 public class Agent 
@@ -20,7 +21,11 @@ public class Agent
 	{
 		LocalFileSystem fs = new LocalFileSystem("/Users/Scott/Music/ZyncTest/porticoLocalFSSettings.xml");
 		Node node = new Node(fs);
-		node.test_populateDatabase();
+		if (false)
+			node.test_populateDatabase();
+		else 
+			node.test_updateDatebase();
+		
 		node.test_dumpDatabase();
 	}
 }

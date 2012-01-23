@@ -7,6 +7,7 @@ import java.lang.Class;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -14,6 +15,7 @@ import java.sql.Statement;
 public class AssetDatabase {
 	public Vector<Asset> assetDB;
 	private Connection dbConnection;
+	private FileSystemSettings settings; 
 	
 	private String trackNameQuery = "" +
 			"select * " +
@@ -27,8 +29,9 @@ public class AssetDatabase {
 			"album = '%s' AND " + 
 			"artist = '%s' ";
 
-	public AssetDatabase()
+	public AssetDatabase(FileSystemSettings inSettings)
 	{
+		this.settings = inSettings;
 		try
 		{
 			Class.forName("org.sqlite.JDBC");
@@ -43,7 +46,7 @@ public class AssetDatabase {
 		try
 		{
 			// create a database connection
-			dbConnection = DriverManager.getConnection("jdbc:sqlite:assets.db");
+			dbConnection = DriverManager.getConnection("jdbc:sqlite:" + settings.getLibraryDatabasePath());
 			Statement statement = dbConnection.createStatement();
 			statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
@@ -74,8 +77,11 @@ public class AssetDatabase {
 		// sql
 		try
 		{
-			Statement statement = dbConnection.createStatement();
-			statement.executeUpdate(SqlQueryFactory.Asset_Update(inAsset));
+			PreparedStatement statement = dbConnection.prepareStatement(SqlQueryFactory.Asset_Insert(inAsset));
+			statement.setString(1, inAsset.uniqueID);
+			statement.setTime(2, inAsset.lastUpdate);
+			statement.setString(3, inAsset.metadata.toString());
+			statement.executeUpdate();
 		} 
 		catch (Exception e)
 		{
@@ -114,10 +120,12 @@ public class AssetDatabase {
 			case Add:
 			{
 				insertAsset(inChange.asset);
+				break;
 			}
 			case Delete:
 			{
 				removeAssetById(inChange.assetUniqueID);
+				break;
 			}
 			// If successful, serialize change
 		}

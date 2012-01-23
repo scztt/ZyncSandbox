@@ -9,8 +9,9 @@ public class AssetRefIterator implements Iterator<AssetRef> {
 	AssetRefIterator(ResultSet inResultSet)
 	{
 		resultSet = inResultSet;
-		try {
-			resultSet.first();
+		try 
+		{
+			resultSet.next();
 		}
 		catch (Exception e)
 		{
@@ -19,20 +20,36 @@ public class AssetRefIterator implements Iterator<AssetRef> {
 	}
 	
 	@Override
-	public boolean hasNext() {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean hasNext() 
+	{
+		try 
+		{
+			return !resultSet.isAfterLast();
+		}
+		catch (Exception e)
+		{
+			System.err.println(e.getMessage());
+			return false;
+		}
 	}
 
 	@Override
 	public AssetRef next() {
-		// TODO Auto-generated method stub
-		return null;
+		try 
+		{
+			AssetRef ref = SqlQueryFactory.AssetRef_FromResultSet(resultSet);
+			resultSet.next();
+			return ref;
+		}
+		catch (Exception e)
+		{
+			System.err.println(e.getMessage());
+			return null;
+		}
 	}
 
 	@Override
 	public void remove() {
-		// TODO Auto-generated method stub
-		
+		// Does nothing
 	}
 }

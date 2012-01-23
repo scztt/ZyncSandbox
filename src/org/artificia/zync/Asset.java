@@ -1,12 +1,19 @@
 package org.artificia.zync;
 
-import java.sql.Date;
+import java.sql.Time;
+import java.util.Date;
 
 public class Asset {
 	public String uniqueID;		// Will be numeric, eventually
 	public AssetMetadata metadata;
-	public Date lastUpdate;
+	public Time lastUpdate;
 
+	Asset()
+	{
+		lastUpdate = new Time(new Date().getTime());
+		metadata = new AssetMetadata();
+	}
+	
 	public String toString()
 	{
 		String str = "";

@@ -2,6 +2,7 @@ package org.artificia.zync;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,9 +10,12 @@ import java.util.Vector;
 
 public class AssetRefDatabase {
 	private Connection dbConnection;
+	FileSystemSettings settings;
 
-	public AssetRefDatabase()
+	public AssetRefDatabase(FileSystemSettings inSettings)
 	{
+		this.settings = inSettings;
+		
 		try
 		{
 			Class.forName("org.sqlite.JDBC");
@@ -25,7 +29,7 @@ public class AssetRefDatabase {
 		try
 		{
 			// create a database connection
-			dbConnection = DriverManager.getConnection("jdbc:sqlite:localassets.db");
+			dbConnection = DriverManager.getConnection("jdbc:sqlite:" + settings.getLocalDatabasePath());
 			Statement statement = dbConnection.createStatement();
 			statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
@@ -53,8 +57,13 @@ public class AssetRefDatabase {
 	{
 		try 
 		{
-			Statement statement = dbConnection.createStatement();
-			statement.executeUpdate(SqlQueryFactory.AssetRef_Update(inAssetRef));
+			PreparedStatement statement = dbConnection.prepareStatement(SqlQueryFactory.AssetRef_Insert());
+			statement.setString(1, inAssetRef.uniqueID);
+			statement.setString(2, inAssetRef.path);
+			statement.setString(3, inAssetRef.name);
+			statement.setInt(4, inAssetRef.size);
+			statement.setTime(5, inAssetRef.lastChanged);
+			statement.executeUpdate();
 		}
 		catch (Exception e)
 		{
@@ -80,8 +89,19 @@ public class AssetRefDatabase {
 		return assetRef;
 	}
 	
-	public AssetRefIterator getDatabaseIterator()
+	public AssetRefIterator iterator()
 	{
-		
+		try
+		{
+			Statement statement = dbConnection.createStatement();
+			ResultSet result = statement.executeQuery(SqlQueryFactory.AssetRef_All());
+			
+			return new AssetRefIterator(result);
+		}
+		catch (Exception e)
+		{
+			System.err.println(e.getMessage());			
+			return null;
+		}
 	}
 }

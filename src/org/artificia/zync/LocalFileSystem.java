@@ -2,6 +2,7 @@ package org.artificia.zync;
 
 import java.io.File;
 import java.net.URI;
+import java.util.LinkedList;
 import java.util.Vector;
 import java.util.Iterator;
 
@@ -31,6 +32,23 @@ public class LocalFileSystem implements FileSystem {
 		this.settings = new LocalFileSystemSettings(inSettingsPath);
 	}
 	
+	public LocalFileSystemSettings getSettings()
+	{
+		return this.settings;
+	}
+	
+	public String constructPath(String path, String name)
+	{	
+		try
+		{
+			return (new File(settings.rootPath, new File(path, name).getPath())).getCanonicalPath();
+		}
+		catch (Exception e)
+		{
+			return "";
+		}
+	}
+
 	public String getRootPath()
 	{
 		return settings.rootPath;
@@ -41,18 +59,16 @@ public class LocalFileSystem implements FileSystem {
 		return (new File(settings.rootPath)).toURI();
 	}
 	
-	public Vector<File> findAllAssets()
+	public LinkedList<File> findAllAssets()
 	{
-		Vector<File> assets = new Vector<File>();
+		LinkedList<File> assets = new LinkedList<File>();
 		
 		Iterator<File> fileIter = FileUtils.iterateFiles(new File(settings.rootPath), assetSpec, true);
 		while (fileIter.hasNext())
 		{
-			assets.addElement(fileIter.next());
+			assets.add(fileIter.next());
 		}
 		
 		return assets;
 	}
-	
-	
 }
